@@ -9,7 +9,7 @@ module "vpc" {
 }
 
 module "marketing" {
-  source         = "git::https://github.com/udjin10/yandex_compute_instance.git?ref=main"
+  source         = "git::https://github.com/udjin10/yandex_compute_instance.git?ref=c59b04f9428f89fdce7b2e2fbccdd284c6f9f6a2"
   env_name       = "marketing" 
   network_id     = module.vpc.vpc_id
   subnet_zones   = module.vpc.subnets[*].zone
@@ -25,13 +25,13 @@ module "marketing" {
   }
 
   metadata = {
-    user-data          = data.template_file.cloudinit.rendered
+    user-data          = local.cloudinit
     serial-port-enable = 1
   }
 }
 
 module "analytics" {
-  source         = "git::https://github.com/udjin10/yandex_compute_instance.git?ref=main"
+  source         = "git::https://github.com/udjin10/yandex_compute_instance.git?ref=c59b04f9428f89fdce7b2e2fbccdd284c6f9f6a2"
   env_name       = "analytics" 
   network_id     = module.vpc.vpc_id
   subnet_zones   = module.vpc.subnets[*].zone
@@ -47,16 +47,14 @@ module "analytics" {
   }
 
   metadata = {
-    user-data          = data.template_file.cloudinit.rendered
+    user-data          = local.cloudinit
     serial-port-enable = 1
   }
 }
 
-data "template_file" "cloudinit" {
-  template = file("${path.module}/cloud-init.yml")
-  
-  vars = {
-    username     = var.vms_username
-    ssh_key      = trimspace(file(var.vms_ssh_root_key))
-  }
+locals {
+  cloudinit = templatefile("${path.module}/cloud-init.yml", {
+    username = var.vms_username
+    ssh_key  = trimspace(file(var.vms_ssh_root_key))
+  })
 }

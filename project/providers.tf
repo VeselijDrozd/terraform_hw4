@@ -2,9 +2,29 @@ terraform {
   required_providers {
     yandex = {
       source = "yandex-cloud/yandex"
+      version = "~> 0.181.0"
     }
   }
   required_version = ">=1.12.0"
+  
+  backend "s3" {
+    shared_credentials_files = ["~/.aws/credentials"]
+    profile = "default"
+    bucket  = "netology-drozd-terraform"
+    key     = "terraform.tfstate"
+    region  = "ru-central1"
+    
+    use_lockfile = true
+    
+    endpoints = {
+      s3 = "https://storage.yandexcloud.net"
+    }
+    
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+  }
 }
 
 provider "yandex" {
